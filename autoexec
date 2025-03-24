@@ -1,16 +1,16 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/San1na/Ozzi/refs/heads/main/Auto"))()
-wait(10) 
+wait(10)  -- Подождать 10 секунд
 
 -- Телепортируемся к точке
 game.Workspace.Map["1 | Spawn"].PARTS.Model.Mining.Enter.CFrame = CFrame.new(game.Workspace.Map["1 | Spawn"].PARTS.Model.Mining.Enter.Position)
-wait(4)
+wait(4)  -- Ждем 4 секунды
 
 -- Отправляем запрос на телепортацию
 local args = {
     [1] = "__Zone_5"
 }
 game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Teleports_RequestInstanceTeleport"):InvokeServer(unpack(args))
-wait(4)
+wait(4)  -- Ждем 4 секунды
 
 -- Координаты для создания платформ
 local coordinates = {
@@ -37,68 +37,68 @@ local partCounter = 1  -- Счетчик для именования платф�
 -- Флаг автофермы
 local autoFarmActive = true
 
-
+-- Создаем платформы на каждой координате
 for _, coord in ipairs(coordinates) do
-
+    -- Если автоферма выключена, прерываем выполнение
     if not autoFarmActive then break end
 
     -- Создаем платформу на данной позиции
     local platform = Instance.new("Part")
-    platform.Size = Vector3.new(10, 1, 10)  ы
-    platform.Position = coord 
-    platform.Anchored = true 
-    platform.Name = "part" .. partCounter  
-    platform.Parent = game.Workspace 
+    platform.Size = Vector3.new(10, 1, 10)  -- Размер платформы
+    platform.Position = coord  -- Позиция платформы
+    platform.Anchored = true  -- Закрепляем платформу
+    platform.Name = "part" .. partCounter  -- Уникальное имя платформы
+    platform.Parent = game.Workspace  -- Добавляем платформу в мир
 
     -- Добавляем платформы для каждой высоты кратной 35 до -620
     for y = math.floor(coord.Y / 35) * 35, -620, -35 do
-        if not autoFarmActive then break end  
+        if not autoFarmActive then break end  -- Проверяем флаг
 
         local additionalPlatform = platform:Clone()
         additionalPlatform.Position = Vector3.new(coord.X, y, coord.Z)
-        additionalPlatform.Name = "part" .. partCounter  
+        additionalPlatform.Name = "part" .. partCounter  -- Уникальное имя для клонированной платформы
         additionalPlatform.Parent = game.Workspace
-        partCounter = partCounter + 1
+        partCounter = partCounter + 1  -- Увеличиваем счетчик для следующей платформы
     end
 
-    partCounter = partCounter + 1  
+    partCounter = partCounter + 1  -- Увеличиваем счетчик для основной платформы
 end
 
 wait(3)  -- Подождать 3 секунды
 
+-- Устанавливаем состояние флага в зависимости от состояния тумблера
+local tpActive = true  -- или state, в зависимости от вашего кода
 
-local tpActive = true 
+local player = game.Players.LocalPlayer  -- Получаем текущего игрока
+local startPartIndex = 1  -- Начальный индекс для платформ
+local endPartIndex = 1000  -- Конечный индекс платформ
 
-local player = game.Players.LocalPlayer 
-local startPartIndex = 1  
-local endPartIndex = 1000  
-
-
+-- Функция для телепортации игрока к указанной платформе
 local function teleportToPart(partName)
     local part = game.Workspace:FindFirstChild(partName)
     if part then
-        player.Character.HumanoidRootPart.CFrame = part.CFrame 
+        player.Character.HumanoidRootPart.CFrame = part.CFrame  -- Телепортируем игрока к найденной платформе
     else
         warn("Платформа " .. partName .. " не найдена!")
     end
 end
 
-
+-- Цикл, который будет телепортировать игрока к платформам с названиями от part1 до part1000
 while tpActive do
     for i = startPartIndex, endPartIndex do
-        if not tpActive then break end  
+        if not tpActive then break end  -- Если тумблер выключен, прерываем цикл
 
-        local partName = "part" .. i 
-        teleportToPart(partName)
-        wait(0.65)
+        local partName = "part" .. i  -- Формируем имя платформы
+        teleportToPart(partName)  -- Телепортируем к платформе
+        wait(0.65)  -- Задержка между телепортациями (по желанию можно изменить)
     end
-
+    -- Если цикл завершился, начинаем сначала
     if tpActive then
-        wait(1) 
+        wait(1)  -- Добавляем небольшую задержку перед новым циклом
     end
 end
 
-
+-- Таймер на 3 с половиной минуты перед сервер-хопом
 wait(3 * 60 + 30)  -- Подождать 3 минуты 30 секунд
 
 local function serverHop()
@@ -106,19 +106,19 @@ local function serverHop()
     local url = "https://games.roblox.com/v1/games/" .. gameId .. "/servers/Public?sortOrder=Asc&limit=100"
 
     local success, result = pcall(function()
-        return HttpService:GetAsync(url) 
+        return HttpService:GetAsync(url)  -- Используем GetAsync вместо HttpGet
     end)
 
     if success then
         local data = HttpService:JSONDecode(result)
         for _, server in pairs(data.data) do
-
+            -- Если сервер не полный и это не тот сервер, на котором игрок уже находится
             if server.playing < server.maxPlayers and server.id ~= game.JobId then
                 table.insert(servers, server.id)
             end
         end
         if #servers > 0 then
-
+            -- Телепортируем на случайный сервер из найденных
             local selectedServer = servers[math.random(1, #servers)]
             TeleportService:TeleportToPlaceInstance(gameId, selectedServer, player)
         else
@@ -129,5 +129,5 @@ local function serverHop()
     end
 end
 
-
+-- Выполняем сервер-хоп
 serverHop()
