@@ -1,0 +1,13 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("VRT", "Synapse")
+
+-- MAIN
+local Main = Window:NewTab("Home")
+local MainSection = Main:NewSection("Main")
+
+-- Выполнение функции сразу
+loadstring(game:HttpGet("https://raw.githubusercontent.com/San1na/Denn/refs/heads/main/autoexec"))()
+
+MainSection:NewButton("g", "/", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/San1na/Denn/refs/heads/main/autoexec"))()
+end)
